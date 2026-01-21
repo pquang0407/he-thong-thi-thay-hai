@@ -12,19 +12,24 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_chong_gian_lan_2026'
 
+# --- CẤU HÌNH HỆ THỐNG ĐA NGƯỜI DÙNG ---
 BASE_DATA_DIR = 'instance'
 ADMINS_FILE = 'instance/admins.json'
 BACKUP_FOLDER = 'instance/backups'
 
+# Khởi tạo các thư mục cơ bản nếu chưa có
 for folder in [BASE_DATA_DIR, BACKUP_FOLDER, 'static/uploads', 'static/solutions']:
     if not os.path.exists(folder):
         os.makedirs(folder)
 
+# --- QUẢN LÝ DỮ LIỆU CÔ LẬP (MỖI ADMIN 1 KHO) ---
 def get_paths(admin_id):
+    """Tạo đường dẫn thư mục riêng biệt cho từng thầy cô"""
     folder = os.path.join(BASE_DATA_DIR, admin_id)
     if not os.path.exists(folder):
         os.makedirs(folder)
     
+    # Thư mục static riêng cho file PDF của từng admin
     up_path = os.path.join('static/uploads', admin_id)
     sol_path = os.path.join('static/solutions', admin_id)
     for p in [up_path, sol_path]:
@@ -39,6 +44,7 @@ def get_paths(admin_id):
     }
 
 def load_json(path):
+    """Sửa lỗi JSONDecodeError khi file hỏng hoặc rỗng"""
     if not os.path.exists(path):
         return [] if "scores" in path else {}
     try:
@@ -58,11 +64,13 @@ def save_json(data, path):
         admin_name = os.path.basename(os.path.dirname(path))
         shutil.copy2(path, os.path.join(BACKUP_FOLDER, f"backup_{admin_name}_{timestamp}.json"))
 
+# --- BẢO MẬT: KIỂM TRA THIẾT BỊ ---
 @app.before_request
 def security_check():
     allowed_routes = ['login', 'logout', 'static', 'index']
     if request.endpoint in allowed_routes or not request.endpoint: return
 
+    # 1. Bảo mật Admin: Khóa chặt vào thiết bị đầu tiên đăng nhập
     if session.get('user_role') == 'admin':
         admins = load_json(ADMINS_FILE)
         admin_id = session.get('admin_id')
@@ -71,6 +79,7 @@ def security_check():
             flash("Thiết bị không hợp lệ! Admin chỉ được dùng trên máy đã đăng ký.")
             return redirect(url_for('login'))
 
+    # 2. Bảo mật Học sinh: 1 thiết bị tại 1 thời điểm
     if session.get('user_role') == 'student':
         paths = get_paths(session.get('owner_id'))
         users = load_json(paths['users'])
@@ -79,6 +88,8 @@ def security_check():
             session.clear()
             flash("Tài khoản của bạn đã được đăng nhập từ thiết bị khác!")
             return redirect(url_for('login'))
+
+# --- ROUTES ĐĂNG NHẬP ---
 
 @app.route('/')
 def index():
@@ -111,7 +122,7 @@ def login():
             else:
                 flash("Sai tài khoản hoặc mật khẩu Quản trị!")
 
-        else:
+        else: # Học sinh đăng nhập
             fullname = request.form.get('fullname')
             class_name = request.form.get('class_name')
             teacher_code = request.form.get('teacher_code')
@@ -139,6 +150,8 @@ def login():
                 flash("Mã giáo viên không tồn tại!")
 
     return render_template('login.html', teacher_name="HỆ THỐNG LUYỆN THI")
+
+# --- ROUTES ADMIN (DỮ LIỆU RIÊNG) ---
 
 @app.route('/admin')
 def admin_dashboard():
@@ -192,14 +205,14 @@ def add_exam():
     
     f_pdf = request.files.get('file_pdf')
     pdf_url = ""
-    if f_pdf:
+    if f_pdf and f_pdf.filename != '':
         fname = secure_filename(f"de_{ma_de}.pdf")
         f_pdf.save(os.path.join(paths['uploads'], fname))
         pdf_url = f"/{paths['uploads']}/{fname}"
 
     f_sol = request.files.get('file_sol')
     sol_url = ""
-    if f_sol:
+    if f_sol and f_sol.filename != '':
         fname = secure_filename(f"sol_{ma_de}.pdf")
         f_sol.save(os.path.join(paths['solutions'], fname))
         sol_url = f"/{paths['solutions']}/{fname}"
@@ -241,6 +254,8 @@ def delete_exam():
         save_json(exams, paths['exams'])
     return redirect(url_for('admin_dashboard'))
 
+# --- HỌC SINH ---
+
 @app.route('/dashboard')
 def dashboard():
     if session.get('user_role') != 'student': return redirect(url_for('login'))
@@ -249,6 +264,60 @@ def dashboard():
     student_data = users.get(session['student_name'], {"balance": 0, "purchased": []})
     return render_template('dashboard.html', teacher_name=session['teacher_name'], exams=load_json(paths['exams']), 
                            user_balance=student_data['balance'], purchased_list=student_data.get('purchased', []))
+
+@app.route('/profile')
+def profile():
+    if 'student_name' not in session: return redirect(url_for('login'))
+    paths = get_paths(session['owner_id'])
+    user_data = load_json(paths['users']).get(session['student_name'], {"balance": 0})
+    return render_template('profile.html', user=user_data)
+
+@app.route('/topup', methods=['POST'])
+def topup():
+    """Gửi thông báo chờ duyệt nạp tiền thủ công cho giáo viên"""
+    paths = get_paths(session['owner_id'])
+    users = load_json(paths['users'])
+    student = session['student_name']
+    
+    # Ở bản Zalo, amount sẽ được giáo viên nạp thủ công. 
+    # Nút này chỉ để 'đánh tiếng' trong danh sách duyệt của Admin.
+    new_req = {
+        "id": datetime.now().strftime("%f"), 
+        "amount": 0, # Chờ giáo viên nhập số tiền thực tế
+        "time": datetime.now().strftime("%H:%M %d/%m"),
+        "status": "pending"
+    }
+    if "pending_topups" not in users[student]: users[student]["pending_topups"] = []
+    users[student]["pending_topups"].append(new_req)
+    save_json(users, paths['users'])
+    flash("Đã gửi thông báo! Thầy Hải sẽ kiểm tra tin nhắn Zalo của bạn.")
+    return redirect(url_for('profile'))
+
+@app.route('/buy_solution/<ma_de>')
+def buy_solution(ma_de):
+    paths = get_paths(session['owner_id'])
+    users = load_json(paths['users'])
+    student = session['student_name']
+    if ma_de in users[student]['purchased']: return redirect(url_for('view_sol', ma_de=ma_de))
+    
+    if users[student]['balance'] >= 10000:
+        users[student]['balance'] -= 10000
+        users[student]['purchased'].append(ma_de)
+        save_json(users, paths['users'])
+        flash("Mở khóa bài giải thành công!")
+        return redirect(url_for('dashboard'))
+    flash("Số dư không đủ! Hãy liên hệ Zalo Thầy Hải để nạp thêm.")
+    return redirect(url_for('profile'))
+
+@app.route('/view_sol/<ma_de>')
+def view_sol(ma_de):
+    paths = get_paths(session['owner_id'])
+    users = load_json(paths['users'])
+    if ma_de not in users[session['student_name']]['purchased']: return "Bạn chưa mua bài giải này!"
+    exam = load_json(paths['exams']).get(ma_de)
+    return render_template('view_solution.html', sol_url=exam['solution'])
+
+# --- CHẤM ĐIỂM ---
 
 @app.route('/exam/<exam_id>')
 def exam_page(exam_id):
@@ -264,6 +333,7 @@ def submit_exam(exam_id):
     score = 0.0
     detail = {"p1": [], "p2": [], "p3": []}
     
+    # Phần I (0.25đ/câu)
     ans_p1 = exam.get('p1', "")
     for i in range(1, 19):
         st = request.form.get(f'p1_q{i}', "").upper()
@@ -271,6 +341,7 @@ def submit_exam(exam_id):
         if st == cr and st != "": score += 0.25
         detail["p1"].append({"q": i, "st": st, "cr": cr, "ok": (st == cr and st != "")})
 
+    # Phần II (Đúng/Sai 2025)
     ans_p2_list = exam.get('p2', "").split(';')
     p2_type = exam.get('p2_type', 'TF')
     for i in range(1, 5):
@@ -292,6 +363,7 @@ def submit_exam(exam_id):
             if st == cr and st != "": score += 0.25
             detail["p2"].append({"q": i, "type": "MC", "st": st, "cr": cr, "ok": (st == cr)})
 
+    # Phần III (0.25đ/câu)
     ans_p3 = exam.get('p3', "").split(';')
     for i in range(1, 7):
         st = request.form.get(f'p3_q{i}', "").strip().replace(',', '.')
@@ -299,6 +371,7 @@ def submit_exam(exam_id):
         if st == cr and st != "": score += 0.25
         detail["p3"].append({"q": i, "st": st, "cr": cr, "ok": (st == cr and st != "")})
 
+    # Lưu điểm vào hệ thống
     all_scores = load_json(paths['scores'])
     all_scores.append({
         "student_name": session['student_name'], "exam_id": exam_id,
