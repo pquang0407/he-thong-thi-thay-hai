@@ -1,0 +1,26 @@
+{
+    "111": {
+        "name": "đề 1",
+        "grade": "LT Đại Học",
+        "time": "60",
+        "pdf": "/static/uploads/de_111.pdf",
+        "solution": "/static/solutions/sol_111.pdf",
+        "p1": "DCCBDCDACAAABADBD",
+        "p2": "SĐĐS;SSĐS;ĐĐSS;ĐSĐS",
+        "p2_type": "TF",
+        "p3": "14;0,3;1700;99;4;1,6",
+        "price": 10000
+    },
+    "222": {
+        "name": "đề 2",
+        "grade": "Lớp 11",
+        "time": "60",
+        "pdf": "/static/uploads/de_222.pdf",
+        "solution": "/static/solutions/sol_222.pdf",
+        "p1": "DCCBDCDACAAABADBD",
+        "p2": "SĐĐS;SSĐS;ĐĐSS;ĐSĐS",
+        "p2_type": "TF",
+        "p3": "14;0,3;1700;99;4;1,6",
+        "price": 10000
+    }
+}

@@ -1,0 +1,105 @@
+:root {
+    --bg-color: #0f172a;
+    --card-bg: #1e293b;
+    --primary-blue: #2563eb;
+    --cyan-grad: linear-gradient(90deg, #2563eb 0%, #0891b2 100%);
+    --text-gold: #fbbf24;
+}
+
+body {
+    margin: 0;
+    background-color: var(--bg-color);
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    color: white;
+}
+
+.main-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.top-nav {
+    width: 100%;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.brand-name {
+    color: var(--text-gold);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.login-card {
+    background-color: var(--card-bg);
+    width: 420px;
+    padding: 40px;
+    border-radius: 20px;
+    margin-top: 50px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+.icon-circle {
+    width: 80px;
+    height: 80px;
+    border: 2px solid var(--text-gold);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 20px;
+    font-size: 40px;
+    color: var(--text-gold);
+}
+
+.input-group {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    display: block;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+input {
+    width: 100%;
+    padding: 14px;
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: white;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: var(--cyan-grad);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-submit:hover { opacity: 0.9; }
+
+.switch-link {
+    margin-top: 25px;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 0.9rem;
+}

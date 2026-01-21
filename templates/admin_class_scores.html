@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Điểm lớp {{ grade_name }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #0f172a; color: white; font-family: sans-serif; margin: 0; }
+        .navbar { background: #1e293b; padding: 10px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+        .container { padding: 30px; }
+        table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 12px; overflow: hidden; }
+        th { background: #0f172a; color: #94a3b8; text-align: left; padding: 15px; font-size: 13px; text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid #334155; }
+        tr:hover { background: rgba(255,255,255,0.02); }
+        .score-badge { background: #064e3b; color: #34d399; padding: 4px 10px; border-radius: 6px; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div style="font-weight: bold; font-size: 18px;">LỚP: {{ grade_name }}</div>
+    <a href="/admin/grades" style="color: #94a3b8; text-decoration: none;"><i class="fas fa-arrow-left"></i> Quay lại</a>
+</div>
+
+<div class="container">
+    <table>
+        <thead>
+            <tr>
+                <th>Thời gian nộp</th>
+                <th>Học sinh</th>
+                <th>Mã đề</th>
+                <th>Tên đề thi</th>
+                <th>Điểm số</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in scores|reverse %}
+            <tr>
+                <td style="color: #64748b; font-size: 12px;">{{ s.time }}</td>
+                <td><b style="color: #eab308;">{{ s.student_name }}</b></td>
+                <td><span style="color: #3b82f6;">#{{ s.exam_id }}</span></td>
+                <td>{{ s.exam_name }}</td>
+                <td><span class="score-badge">{{ s.score }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

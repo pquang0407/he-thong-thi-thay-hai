@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Cổng Đăng Nhập Hệ Thống</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #0f172a; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; color: white; }
+        .login-card { background-color: #1e293b; padding: 40px; border-radius: 16px; width: 420px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-top: 4px solid #3b82f6; }
+        .logo-circle { background: #eab308; width: 65px; height: 65px; border-radius: 50%; margin: 0 auto 20px; display: flex; justify-content: center; align-items: center; font-size: 30px; }
+        .input-group { text-align: left; margin-bottom: 12px; }
+        label { display: block; font-size: 11px; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; }
+        .input-wrapper { position: relative; }
+        .input-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #64748b; }
+        input { width: 100%; padding: 12px 15px 12px 45px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: white; box-sizing: border-box; outline: none; }
+        .btn { width: 100%; padding: 13px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
+        .btn-student { background: linear-gradient(to right, #3b82f6, #06b6d4); }
+        .btn-teacher { background: linear-gradient(to right, #f59e0b, #ea580c); }
+        .toggle-link { margin-top: 20px; font-size: 13px; color: #64748b; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo-circle"><i class="fas fa-graduation-cap"></i></div>
+        
+        <div id="student-form">
+            <h2 style="margin-bottom: 25px;">HỌC SINH ĐĂNG NHẬP</h2>
+            <form method="POST">
+                <input type="hidden" name="role" value="student">
+                
+                <div class="input-group">
+                    <label>Mã giáo viên (ID Thầy Cô)</label>
+                    <div class="input-wrapper"><i class="fas fa-id-card-alt"></i><input type="text" name="teacher_code" placeholder="Ví dụ: thay_hai" required></div>
+                </div>
+
+                <div class="input-group">
+                    <label>Họ và tên học sinh</label>
+                    <div class="input-wrapper"><i class="fas fa-user"></i><input type="text" name="fullname" placeholder="Nguyễn Văn A" required></div>
+                </div>
+
+                <div class="input-group">
+                    <label>Lớp học</label>
+                    <div class="input-wrapper"><i class="fas fa-users"></i><input type="text" name="class_name" placeholder="Ví dụ: 12A1" required></div>
+                </div>
+
+                <div class="input-group">
+                    <label>Mật khẩu</label>
+                    <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" name="student_pass" placeholder="••••••" required></div>
+                </div>
+
+                <button type="submit" class="btn btn-student">Vào thi ngay</button>
+            </form>
+        </div>
+
+        <div id="teacher-form" style="display:none;">
+            <h2 style="margin-bottom: 25px;">QUẢN TRỊ VIÊN</h2>
+            <form method="POST">
+                <input type="hidden" name="role" value="teacher">
+                <div class="input-group">
+                    <label>Tên đăng nhập Admin</label>
+                    <div class="input-wrapper"><i class="fas fa-user-shield"></i><input type="text" name="admin_username" placeholder="Nhập ID Admin" required></div>
+                </div>
+                <div class="input-group">
+                    <label>Mật khẩu Quản trị</label>
+                    <div class="input-wrapper"><i class="fas fa-key"></i><input type="password" name="admin_pass" required></div>
+                </div>
+                <button type="submit" class="btn btn-teacher">Truy cập hệ thống</button>
+            </form>
+        </div>
+
+        <div class="toggle-link" onclick="toggleRole()"><i class="fas fa-sync"></i> Chuyển quyền đăng nhập</div>
+    </div>
+
+    <script>
+        // Lấy dấu vân tay máy tính để thực hiện Khóa máy Admin
+        function getFingerprint() {
+            return "ID-" + (window.navigator.userAgent.length + window.screen.width + window.screen.height);
+        }
+
+        document.querySelector('#teacher-form form').onsubmit = function() {
+            let input = document.createElement("input");
+            input.type = "hidden"; input.name = "device_fingerprint";
+            input.value = getFingerprint();
+            this.appendChild(input);
+        };
+
+        function toggleRole() {
+            const s = document.getElementById('student-form'), t = document.getElementById('teacher-form');
+            s.style.display = s.style.display === 'none' ? 'block' : 'none';
+            t.style.display = t.style.display === 'none' ? 'block' : 'none';
+        }
+        {% with msgs = get_flashed_messages() %}{% if msgs %}alert("{{msgs[0]}}");{% endif %}{% endwith %}
+    </script>
+</body>
+</html>

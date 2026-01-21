@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hệ Thống Luyện Thi - {{ session.student_name }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden;}
+        
+        /* SIDEBAR */
+        .sidebar { width: 240px; background: #1e293b; border-right: 1px solid #334155; display: flex; flex-direction: column; }
+        .user-panel { padding: 25px 20px; background: rgba(30, 41, 59, 0.5); border-bottom: 1px solid #334155; }
+        .user-name { color: #eab308; font-weight: bold; font-size: 15px; display: block; margin-bottom: 5px; }
+        .user-balance { color: #22c55e; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        
+        .nav-group h3 { padding: 20px; font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin: 0; }
+        .nav-item { padding: 12px 20px; font-size: 14px; color: #94a3b8; cursor: pointer; border-left: 3px solid transparent; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
+        .nav-item:hover { background: rgba(59, 130, 246, 0.1); color: white; }
+        .nav-item.active { background: #1e40af; color: white; border-left-color: #3b82f6; }
+        
+        .logout-container { margin-top: auto; padding: 15px; border-top: 1px solid #334155; }
+        .btn-logout { display: flex; align-items: center; gap: 10px; color: #f87171; text-decoration: none; font-size: 13px; font-weight: bold; padding: 10px; border-radius: 8px; transition: 0.3s; }
+        .btn-logout:hover { background: rgba(239, 68, 68, 0.1); }
+
+        /* MAIN CONTENT */
+        .main { flex: 1; padding: 30px 50px; overflow-y: auto; background: #0f172a; }
+        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        
+        .card { background: #1e293b; border-radius: 15px; padding: 20px; border: 1px solid #334155; transition: 0.3s; position: relative; }
+        .card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .tag { font-size: 10px; padding: 4px 10px; border-radius: 5px; font-weight: bold; text-transform: uppercase; margin-right: 5px; }
+        .btn-start { width: 100%; padding: 12px; background: linear-gradient(135deg, #2563eb, #0891b2); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.2s; }
+        .btn-start:hover { opacity: 0.9; transform: scale(1.02); }
+
+        #empty-state { display: none; text-align: center; margin-top: 100px; color: #475569; }
+        #empty-state i { font-size: 80px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="user-panel">
+            <span class="user-name"><i class="fas fa-user-circle"></i> {{ session.student_name }}</span>
+            <div class="user-balance" onclick="location.href='/profile'" style="cursor:pointer;" title="Nạp tiền">
+                <i class="fas fa-wallet"></i> {{ "{:,.0f}".format(user_balance) }}đ 
+                <i class="fas fa-plus-circle" style="font-size: 10px; opacity: 0.7;"></i>
+            </div>
+        </div>
+        
+        <div class="nav-group">
+            <h3>Danh mục khối lớp</h3>
+            <div class="nav-item active" onclick="filterExams('all', this)"><i class="fas fa-th-large"></i> Tất cả đề thi</div>
+            <div class="nav-item" onclick="filterExams('Lớp 6', this)">Lớp 6</div>
+            <div class="nav-item" onclick="filterExams('Lớp 7', this)">Lớp 7</div>
+            <div class="nav-item" onclick="filterExams('Lớp 8', this)">Lớp 8</div>
+            <div class="nav-item" onclick="filterExams('Lớp 9', this)">Lớp 9</div>
+            <div class="nav-item" onclick="filterExams('Lớp 10', this)">Lớp 10</div>
+            <div class="nav-item" onclick="filterExams('Lớp 11', this)">Lớp 11</div>
+            <div class="nav-item" onclick="filterExams('Lớp 12', this)">Lớp 12</div>
+            <div class="nav-item" style="color: #fbbf24;" onclick="filterExams('LT ĐẠI HỌC', this)"><i class="fas fa-graduation-cap"></i> LT ĐẠI HỌC</div>
+        </div>
+
+        <div class="logout-container">
+            <a href="/logout" class="btn-logout" onclick="return confirm('Bạn muốn đăng xuất?')">
+                <i class="fas fa-sign-out-alt"></i> ĐĂNG XUẤT
+            </a>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="main-header">
+            <h1 id="main-title" style="margin:0; font-size: 24px; letter-spacing: 1px;">TẤT CẢ ĐỀ THI</h1>
+            <div style="font-size: 13px; color: #64748b;">Hệ thống cập nhật 2026</div>
+        </div>
+        
+        <div class="grid" id="exam-grid">
+            {% for id, ex in exams.items() %}
+            <div class="card exam-card" data-grade="{{ ex.grade }}">
+                <div style="margin-bottom: 15px;">
+                    <span class="tag" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">{{ ex.grade }}</span>
+                    <span class="tag" style="background: rgba(234, 179, 8, 0.1); color: #facc15;"><i class="far fa-clock"></i> {{ ex.time }} phút</span>
+                </div>
+                <h3 style="font-size: 16px; margin: 0; height: 45px; line-height: 1.4; overflow: hidden;">{{ ex.name }}</h3>
+                <div style="font-size: 11px; color: #475569; margin-top: 15px; display: flex; justify-content: space-between;">
+                    <span>Mã đề: <b>{{ id }}</b></span>
+                    <span><i class="fas fa-file-pdf"></i> PDF</span>
+                </div>
+
+                {% if ex.solution %}
+                <div style="border-top: 1px dashed #334155; padding-top: 10px; margin-top: 10px;">
+                    {% if id in purchased_list %}
+                        <button class="btn-start" style="background: #059669; margin-top: 0;" onclick="window.open('/view_sol/{{ id }}')">
+                            <i class="fas fa-eye"></i> XEM BÀI GIẢI (10k)
+                        </button>
+                    {% else %}
+                        <button class="btn-start" style="background: #334155; margin-top: 0; color:#cbd5e0;" 
+                                onclick="if(confirm('Mở khóa lời giải chi tiết với 10,000đ?')) window.location.href='/buy_solution/{{ id }}'">
+                            <i class="fas fa-lock" style="color:#facc15"></i> MỞ KHÓA (10K)
+                        </button>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <button class="btn-start" onclick="if(confirm('Bắt đầu làm bài thi?')) window.location.href='/exam/{{ id }}'">
+                    <i class="fas fa-pen-nib"></i> BẮT ĐẦU THI
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div id="empty-state">
+            <i class="fas fa-folder-open"></i>
+            <p style="font-size: 18px;">Chưa có đề thi nào trong danh mục này.</p>
+        </div>
+    </div>
+
+    <script>
+        function filterExams(grade, element) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('main-title').innerText = grade === 'all' ? 'TẤT CẢ ĐỀ THI' : 'KHO ĐỀ ' + grade.toUpperCase();
+            const cards = document.querySelectorAll('.exam-card');
+            let count = 0;
+            cards.forEach(card => {
+                const cardGrade = card.getAttribute('data-grade').trim().toUpperCase();
+                const targetGrade = grade.trim().toUpperCase();
+                if (grade === 'all' || cardGrade === targetGrade) {
+                    card.style.display = 'block';
+                    count++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            document.getElementById('empty-state').style.display = count === 0 ? 'block' : 'none';
+            document.getElementById('exam-grid').style.display = count === 0 ? 'none' : 'grid';
+        }
+    </script>
+</body>
+</html>

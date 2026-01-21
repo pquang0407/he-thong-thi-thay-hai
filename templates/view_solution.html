@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Bài giải chi tiết</title>
+    <style>
+        body { margin: 0; background: #525659; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
+        .toolbar { background: #1e293b; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-back { color: white; text-decoration: none; background: #334155; padding: 8px 15px; border-radius: 5px; font-size: 14px; }
+        iframe { flex: 1; border: none; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <div><i class="fas fa-file-alt"></i> BÀI GIẢI CHI TIẾT</div>
+        <a href="/dashboard" class="btn-back">QUAY LẠI</a>
+    </div>
+    <iframe src="{{ sol_url }}#toolbar=0"></iframe>
+</body>
+</html>

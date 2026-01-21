@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý điểm - {{ teacher_name }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #0f172a; color: white; font-family: sans-serif; margin: 0; }
+        .navbar { background: #1e293b; padding: 10px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+        .container { padding: 40px; max-width: 1000px; margin: auto; }
+        .grade-card { background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; cursor: pointer; transition: 0.3s; }
+        .grade-card:hover { border-color: #3b82f6; background: #2d3748; }
+        .btn-back { color: #94a3b8; text-decoration: none; font-size: 14px; }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div style="color:#eab308; font-size: 13px;"><i class="fas fa-user-edit"></i> {{ teacher_name }}</div>
+    <div style="font-weight: bold; font-size: 18px;">QUẢN LÝ ĐIỂM THEO LỚP</div>
+    <a href="/admin" class="btn-back"><i class="fas fa-arrow-left"></i> Quay lại</a>
+</div>
+
+<div class="container">
+    <h2 style="color: #eab308; margin-bottom: 30px;">DANH SÁCH KHỐI LỚP ĐÃ THI</h2>
+    {% for grade in grades %}
+    <div class="grade-card" onclick="location.href='/admin/grades/{{ grade }}'">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <i class="fas fa-folder fa-2x" style="color: #3b82f6;"></i>
+            <span style="font-size: 18px; font-weight: bold;">{{ grade }}</span>
+        </div>
+        <i class="fas fa-chevron-right" style="color: #475569;"></i>
+    </div>
+    {% endfor %}
+    {% if not grades %}
+    <div style="text-align: center; color: #475569; margin-top: 50px;">Chưa có học sinh nào nộp bài.</div>
+    {% endif %}
+</div>
+</body>
+</html>

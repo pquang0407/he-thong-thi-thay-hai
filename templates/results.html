@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Kết Quả Chi Tiết</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; padding: 20px; color: #1e293b; }
+        .card { max-width: 900px; margin: auto; background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        
+        .score-box { text-align: center; padding: 30px; background: #1e293b; color: white; border-radius: 12px; margin-bottom: 30px; }
+        .score-val { font-size: 70px; font-weight: bold; color: #22c55e; margin: 10px 0; }
+        
+        .sec-title { border-left: 5px solid #2563eb; padding-left: 15px; margin: 40px 0 20px; font-weight: bold; text-transform: uppercase; color: #1e40af; font-size: 18px; }
+
+        /* Lưới hiển thị chung cho Phần 1 và 3 */
+        .grid-res { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+        .q-box { padding: 12px; border-radius: 10px; border: 2px solid #e2e8f0; font-size: 14px; text-align: center; font-weight: bold; }
+        
+        /* Màu sắc trạng thái */
+        .ok { background: #dcfce7; border-color: #22c55e; color: #166534; } 
+        .fail { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+
+        /* PHẦN II: Hiển thị theo nhóm câu hỏi */
+        .tf-group { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 20px; }
+        .tf-group-title { margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+        .tf-sub-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .tf-sub-box { padding: 10px; border-radius: 8px; border: 2px solid; text-align: center; font-size: 13px; }
+        
+        /* Chỉnh lại label a,b,c,d */
+        .sub-label { margin-bottom: 5px; font-size: 16px; font-weight: bold; text-transform: lowercase; color: #1e293b; }
+
+        .btn-home { display: block; width: 100%; max-width: 250px; margin: 40px auto 0; text-align: center; background: #2563eb; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="score-box">
+        <h2 style="margin:0; opacity: 0.8;">BÀI THI: {{ exam_name }}</h2>
+        <div class="score-val">{{ score }}</div>
+        <p style="margin:0; font-size: 14px;">TỔNG ĐIỂM ĐẠT ĐƯỢC</p>
+    </div>
+
+    <div class="sec-title">Phần I: Trắc nghiệm ABCD</div>
+    <div class="grid-res">
+        {% for r in detail.p1 %}
+        <div class="q-box {{ 'ok' if r.ok else 'fail' }}">
+            Câu {{ r.q }}<br>
+            <span style="font-size: 18px;">{{ r.st if r.st else '-' }}</span><br>
+            <small>Đúng: {{ r.cr }}</small>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="sec-title">Phần II: Trắc nghiệm Đúng/Sai</div>
+    {% for r in detail.p2 %}
+    <div class="tf-group">
+        <div class="tf-group-title">
+            <span style="font-weight: bold; color: #1e40af;">CÂU HỎI {{ r.q }}</span>
+            <span style="color: #059669; font-weight: bold; font-size: 14px;">+{{ r.points }}đ</span>
+        </div>
+        <div class="tf-sub-grid">
+            {% for s in r.sub %}
+            <div class="tf-sub-box {{ 'ok' if s.st == s.cr else 'fail' }}">
+                <div class="sub-label">{{ s.label }}</div>
+                <div style="font-size: 18px;">{{ s.st if s.st else '-' }}</div>
+                <div style="border-top: 1px solid rgba(0,0,0,0.1); margin-top: 5px; padding-top: 5px; font-size: 11px;">
+                    Đúng: {{ s.cr }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="sec-title">Phần III: Trả lời ngắn</div>
+    <div class="grid-res">
+        {% for r in detail.p3 %}
+        <div class="q-box {{ 'ok' if r.ok else 'fail' }}">
+            Câu {{ r.q }}<br>
+            <span style="font-size: 16px;">{{ r.st if r.st else '-' }}</span><br>
+            <small>Đúng: {{ r.cr }}</small>
+        </div>
+        {% endfor %}
+    </div>
+
+    <a href="/dashboard" class="btn-home"><i class="fas fa-home"></i> VỀ TRANG CHỦ</a>
+</div>
+
+</body>
+</html>
