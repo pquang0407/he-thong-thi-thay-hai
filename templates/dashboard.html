@@ -90,12 +90,12 @@
                 <div style="border-top: 1px dashed #334155; padding-top: 10px; margin-top: 10px;">
                     {% if id in purchased_list %}
                         <button class="btn-start" style="background: #059669; margin-top: 0;" onclick="window.open('/view_sol/{{ id }}')">
-                            <i class="fas fa-eye"></i> XEM BÀI GIẢI (10k)
+                            <i class="fas fa-eye"></i> XEM BÀI GIẢI CHI TIẾT (10k)
                         </button>
                     {% else %}
                         <button class="btn-start" style="background: #334155; margin-top: 0; color:#cbd5e0;" 
                                 onclick="if(confirm('Mở khóa lời giải chi tiết với 10,000đ?')) window.location.href='/buy_solution/{{ id }}'">
-                            <i class="fas fa-lock" style="color:#facc15"></i> MỞ KHÓA (10K)
+                            <i class="fas fa-lock" style="color:#facc15"></i> XEM BÀI GIẢI CHI TIẾT (10k)
                         </button>
                     {% endif %}
                 </div>
