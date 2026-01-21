@@ -5,24 +5,19 @@
     <title>Ví tiền & Cá nhân - {{ session.student_name }}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        body { background: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         .container { background: #1e293b; width: 450px; border-radius: 20px; padding: 40px; border: 1px solid #334155; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; }
         
         .avatar-box { width: 80px; height: 80px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 35px; border: 4px solid #0f172a; }
         .balance-label { font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
         .balance-val { font-size: 45px; font-weight: bold; color: #22c55e; margin: 10px 0 30px; }
         
-        .topup-box { background: #0f172a; padding: 25px; border-radius: 15px; border: 1px solid #334155; }
-        input { width: 100%; padding: 12px; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 8px; margin-bottom: 15px; text-align: center; font-size: 18px; outline: none; box-sizing: border-box; }
-        input:focus { border-color: #3b82f6; }
+        .topup-box { background: white; padding: 25px; border-radius: 15px; border: 1px solid #ddd; color: #0f172a; }
+        .zalo-header { font-weight: bold; color: #0068ff; margin-bottom: 15px; font-size: 18px; }
+        .qr-image { width: 100%; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .zalo-instruction { font-size: 13px; color: #475569; line-height: 1.5; }
         
-        .btn-qr { width: 100%; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-qr:hover { background: #2563eb; }
-
-        #qrContainer { display: none; margin-top: 25px; background: white; padding: 20px; border-radius: 15px; }
-        #qrContainer p { color: #0f172a; font-weight: bold; margin-bottom: 10px; font-size: 12px; }
-        
-        .btn-confirm { background: #22c55e; width: 100%; border: none; color: white; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; cursor: pointer; }
+        .btn-confirm { background: #22c55e; width: 100%; border: none; color: white; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -35,41 +30,20 @@
         <div class="balance-val">{{ "{:,.0f}".format(user.balance) }}đ</div>
 
         <div class="topup-box">
-            <h3 style="margin-top: 0; font-size: 16px;">Nạp tiền qua VietQR</h3>
-            <input type="number" id="amount" placeholder="Nhập số tiền (VD: 20000)" min="10000">
-            <button class="btn-qr" onclick="generateQR()">TẠO MÃ QR CHUYỂN KHOẢN</button>
-
-            <div id="qrContainer">
-                <p>QUÉT MÃ ĐỂ NẠP TIỀN TỰ ĐỘNG</p>
-                <img id="qrImg" src="" style="width: 100%; border-radius: 10px;">
-                <form action="/topup" method="POST">
-                    <input type="hidden" name="amount" id="formAmount">
-                    <button type="submit" class="btn-confirm">XÁC NHẬN ĐÃ CHUYỂN KHOẢN</button>
-                </form>
+            <div class="zalo-header">Văn Hải - Liên hệ Zalo</div>
+            <img src="/static/zalo_qr.png" class="qr-image" alt="Mã QR Zalo">
+            <div class="zalo-instruction">
+                Mở ứng dụng Zalo, quét mã QR trên để nhắn tin trực tiếp cho Thầy Hải nạp tiền vào tài khoản.
             </div>
+            
+            <form action="/topup" method="POST">
+                <input type="hidden" name="amount" value="0"> <button type="submit" class="btn-confirm">Đã nhắn tin cho Thầy</button>
+            </form>
         </div>
 
         <div style="margin-top: 30px;">
             <a href="/dashboard" style="color: #94a3b8; text-decoration: none; font-size: 14px;"><i class="fas fa-chevron-left"></i> Quay lại Dashboard</a>
         </div>
     </div>
-
-    <script>
-        function generateQR() {
-            const amount = document.getElementById('amount').value;
-            if (amount < 10000) { alert("Vui lòng nạp tối thiểu 10,000đ"); return; }
-            
-            // Thông tin ngân hàng của Thầy Hải
-            const bankId = "MB"; // Ngân hàng Quân Đội
-            const accountNo = "0908176253"; 
-            const memo = "NAP TIEN " + encodeURIComponent("{{ session.student_name }}");
-            
-            const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact.png?amount=${amount}&addInfo=${memo}`;
-            
-            document.getElementById('qrImg').src = qrUrl;
-            document.getElementById('qrContainer').style.display = 'block';
-            document.getElementById('formAmount').value = amount;
-        }
-    </script>
 </body>
 </html>
